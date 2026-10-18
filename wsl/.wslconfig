@@ -1,0 +1,7 @@
+# 复制到 %USERPROFILE%\.wslconfig 后执行 wsl --shutdown 生效
+# 5GB 配额是 16GB 宿主机内存预算的核心防线
+[wsl2]
+memory=5GB
+processors=4
+swap=2GB
+localhostForwarding=true
