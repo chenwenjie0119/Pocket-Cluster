@@ -1,0 +1,57 @@
+# Pocket-Cluster 单机模拟集群编排
+# - 2 个 Linux Worker（WSL2 Docker 后端），各限 1536m，禁止 swap 逃逸
+# - 可选 master 容器（profile: optional；默认不用，推荐原生跑）
+# 启动: cd docker && docker compose up -d --build
+version: "3.8"
+
+services:
+  worker-1:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    container_name: pocket-worker-1
+    mem_limit: 1536m
+    memswap_limit: 1536m
+    cpus: 2.0
+    restart: unless-stopped
+    environment:
+      RPC_HOST: "0.0.0.0"
+      RPC_PORT: "50052"
+    ports:
+      - "50052:50052"
+    networks:
+      - pocket-net
+
+  worker-2:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    container_name: pocket-worker-2
+    mem_limit: 1536m
+    memswap_limit: 1536m
+    cpus: 2.0
+    restart: unless-stopped
+    environment:
+      RPC_HOST: "0.0.0.0"
+      RPC_PORT: "50052"
+    ports:
+      - "50053:50052"
+    networks:
+      - pocket-net
+
+  master:
+    build:
+      context: ..
+      dockerfile: docker/master/Dockerfile
+    container_name: pocket-master
+    mem_limit: 512m
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - pocket-net
+    profiles: ["optional"]
+
+networks:
+  pocket-net:
+    driver: bridge

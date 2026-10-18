@@ -1,0 +1,10 @@
+.git
+logs/
+models/
+android/
+scripts/
+examples/
+docs/
+wsl/
+*.exe
+*.pdb
