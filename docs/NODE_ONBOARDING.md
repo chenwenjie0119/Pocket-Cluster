@@ -1,14 +1,3 @@
----
-AIGC:
-    Label: "1"
-    ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 3144a37a9207ea4301a32a24b64ea984_2067fbd1ca9e11f18e0e52540064ee0f
-    ReservedCode1: j7RywQm3iU8EBVE0LMgnkkkMxnNaS3volZ96RxpkXjhxY7rQyIYvVp6teeCiBk/PyyqkfUPKuzcB9gWrG8lbaShezVvVF/aEGxXLm+v7VYmNpctOyCFtgD2B0WKoWm0EedR7sdWlLPCFLSUoIO4/yhqZXGpDwdPKw9qYBT3WCBF77w4/GtK4gpHgle8=
-    ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 3144a37a9207ea4301a32a24b64ea984_2067fbd1ca9e11f18e0e52540064ee0f
-    ReservedCode2: j7RywQm3iU8EBVE0LMgnkkkMxnNaS3volZ96RxpkXjhxY7rQyIYvVp6teeCiBk/PyyqkfUPKuzcB9gWrG8lbaShezVvVF/aEGxXLm+v7VYmNpctOyCFtgD2B0WKoWm0EedR7sdWlLPCFLSUoIO4/yhqZXGpDwdPKw9qYBT3WCBF77w4/GtK4gpHgle8=
----
-
 # 真机 Android / 树莓派节点接入（Node Onboarding）
 
 把真实设备（Android 手机、树莓派）变成 Pocket-Cluster 的推理 Worker。核心原则：设备上运行 llama.cpp 的 `rpc-server`（编译时开启 `-DLLAMA_RPC=ON`），然后按与 Docker Worker 相同的方式向 Master 注册并上报心跳。
@@ -95,4 +84,3 @@ cd docker && docker compose up -d --build worker
 - **RPC 连接超时**：确认设备 IP 可达、防火墙放行 50052，且 rpc-server 以 `--host 0.0.0.0` 启动（不要只监听 localhost）。
 - **心跳脚本连不上 Master**：确认 `MASTER` 地址填写局域网 IP 而非 `127.0.0.1`（Master 不在本机时）。
 - **节点频繁离线**：检查设备息屏/休眠是否杀掉进程，Android 请开启 Termux 唤醒锁或使用 watchdog 保活。
-*（内容由AI生成，仅供参考）*
