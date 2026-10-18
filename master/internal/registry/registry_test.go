@@ -102,3 +102,53 @@ func TestConcurrentRegisterHeartbeatAndList(t *testing.T) {
 		t.Fatalf("expected 8 online nodes, got %d", got)
 	}
 }
+
+// TestMarkFailedExcludesFromOnline 覆盖 MarkFailed 后节点从 Online() 剔除、
+// All() 保留且 FailedReason 正确。
+func TestMarkFailedExcludesFromOnline(t *testing.T) {
+	r := registry.New(30 * time.Second)
+	r.Register(registry.Node{ID: "worker-1", Addr: "127.0.0.1:50052", MemFreeMB: 1400})
+
+	if !r.MarkFailed("worker-1", "rpc connect timeout") {
+		t.Fatal("MarkFailed should return true for existing node")
+	}
+	if got := r.Online(); len(got) != 0 {
+		t.Fatalf("Online() should exclude failed node, got %+v", got)
+	}
+	all := r.All()
+	if len(all) != 1 {
+		t.Fatalf("All() should keep failed node for display, got %+v", all)
+	}
+	if all[0].Status != "offline" || all[0].FailedReason != "rpc connect timeout" {
+		t.Fatalf("failed node should carry status/reason, got %+v", all[0])
+	}
+}
+
+// TestClearFailedRestoresOnline 覆盖 ClearFailed 后节点恢复在线并清空失败原因。
+func TestClearFailedRestoresOnline(t *testing.T) {
+	r := registry.New(30 * time.Second)
+	r.Register(registry.Node{ID: "worker-1", Addr: "127.0.0.1:50052", MemFreeMB: 1400})
+	r.MarkFailed("worker-1", "inference error")
+
+	if !r.ClearFailed("worker-1") {
+		t.Fatal("ClearFailed should return true for existing node")
+	}
+	if got := r.Online(); len(got) != 1 {
+		t.Fatalf("Online() should include restored node, got %+v", got)
+	}
+	n := r.All()[0]
+	if n.Status != "online" || n.FailedReason != "" {
+		t.Fatalf("restored node should be online with empty reason, got %+v", n)
+	}
+}
+
+// TestMarkFailedClearFailedUnknownNode 覆盖对不存在节点返回 false。
+func TestMarkFailedClearFailedUnknownNode(t *testing.T) {
+	r := registry.New(30 * time.Second)
+	if r.MarkFailed("missing", "x") {
+		t.Fatal("MarkFailed on unknown node should return false")
+	}
+	if r.ClearFailed("missing") {
+		t.Fatal("ClearFailed on unknown node should return false")
+	}
+}
