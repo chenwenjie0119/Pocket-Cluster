@@ -1,14 +1,3 @@
----
-AIGC:
-    Label: "1"
-    ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: 3144a37a9207ea4301a32a24b64ea984_1f296c5fca9e11f18533525400638852
-    ReservedCode1: RXmcwXNlAr+mexlt2y76OQb3GR0/n6dR+kPADK8f/irrj9pTDpt/b87y1+tgNpj5IFwBGbD7oIze951XfaALKpwf5jihvkuqkzaUOmmC1jA+gWCIHo9PZP2mqVgpHKEqLN+OYkhLvJ1Yz9WNoUCCcLMx2ZfBZI1K+ywnNs9+v2hbt6iA8eqLrYRB+Ms=
-    ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: 3144a37a9207ea4301a32a24b64ea984_1f296c5fca9e11f18533525400638852
-    ReservedCode2: RXmcwXNlAr+mexlt2y76OQb3GR0/n6dR+kPADK8f/irrj9pTDpt/b87y1+tgNpj5IFwBGbD7oIze951XfaALKpwf5jihvkuqkzaUOmmC1jA+gWCIHo9PZP2mqVgpHKEqLN+OYkhLvJ1Yz9WNoUCCcLMx2ZfBZI1K+ywnNs9+v2hbt6iA8eqLrYRB+Ms=
----
-
 # 故障转移与任务重试（Failover & Retry）
 
 Master（pocketd）在调度层只依赖**在线节点**，任何节点离线（心跳超时或被主动标记失败）都会自动从推理计划中排除。本文档说明三层故障处理机制与客户端重试策略。
@@ -66,4 +55,3 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/nodes/recover \
 ```
 
 > 说明：`POST /api/v1/nodes/fail` 与 `POST /api/v1/nodes/recover` 已由 pocketd 原生暴露，分别对应 `registry.MarkFailed` 与 `registry.ClearFailed`；节点恢复后也可直接通过心跳（`POST /api/v1/nodes/heartbeat`）重新回到在线池。
-*（内容由AI生成，仅供参考）*

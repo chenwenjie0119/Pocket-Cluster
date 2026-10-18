@@ -92,7 +92,7 @@ docs/        Architecture, MVP guide, memory budget, troubleshooting
 
 - [x] MVP: single-machine simulated cluster (Windows + Docker + MuMu, 1 Master + 2/3 Workers)
 - [x] Automatic tensor-split ratio calculation (based on per-node free memory / CPU cores)
-- [x] Real Android / Raspberry Pi node onboarding
+- [ ] Real Android / Raspberry Pi node onboarding
 - [ ] Model shard caching & incremental distribution
 - [x] Automatic removal of failed nodes & task retry
 - [ ] iOS / macOS nodes (Metal backend)
