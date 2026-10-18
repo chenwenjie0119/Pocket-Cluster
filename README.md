@@ -92,9 +92,9 @@ docs/        架构、MVP 指南、内存预算、排障
 
 - [x] MVP：单机模拟集群（Windows + Docker + MuMu，1 Master + 2/3 Worker）
 - [x] 张量切分比例自动计算（按节点可用内存 / CPU 核数）
-- [ ] 真机 Android / 树莓派节点接入
+- [x] 真机 Android / 树莓派节点接入
 - [ ] 模型分片缓存与增量下发
-- [ ] 失败节点自动剔除与任务重试
+- [x] 失败节点自动剔除与任务重试
 - [ ] iOS / macOS 节点（Metal 后端）
 
 ## License

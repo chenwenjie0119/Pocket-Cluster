@@ -17,6 +17,7 @@ type Node struct {
 	CPUs         int      `json:"cpus"`
 	Capabilities []string `json:"capabilities"` // ["cpu"], 未来: ["gpu"], ["mps"]
 	Status       string   `json:"status"`       // online / offline
+	FailedReason string   `json:"failed_reason,omitempty"` // 最近一次失败原因，仅离线节点使用
 	LastSeen     time.Time `json:"-"`
 }
 
@@ -51,6 +52,37 @@ func (r *Registry) Heartbeat(id string, memFreeMB int64) bool {
 	}
 	n.MemFreeMB = memFreeMB
 	n.Status = "online"
+	n.LastSeen = time.Now()
+	return true
+}
+
+// MarkFailed 将节点标记为失败：置离线、记录原因并清零心跳时间，
+// 使 Online() 的 TTL 过滤即刻将其剔除（不修改 Online()/All() 现有逻辑）。
+// 节点不存在时返回 false。典型场景：Master 侧检测到 RPC 连接失败或推理报错。
+func (r *Registry) MarkFailed(id string, reason string) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	n, ok := r.nodes[id]
+	if !ok {
+		return false
+	}
+	n.Status = "offline"
+	n.FailedReason = reason
+	n.LastSeen = time.Time{}
+	return true
+}
+
+// ClearFailed 清除失败标记并恢复在线，重置心跳时间。
+// 节点不存在时返回 false。
+func (r *Registry) ClearFailed(id string) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	n, ok := r.nodes[id]
+	if !ok {
+		return false
+	}
+	n.Status = "online"
+	n.FailedReason = ""
 	n.LastSeen = time.Now()
 	return true
 }

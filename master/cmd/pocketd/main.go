@@ -74,6 +74,47 @@ func main() {
 		writeJSON(w, map[string]any{"nodes": reg.All()})
 	})
 
+	// POST /api/v1/nodes/fail 标记节点失败（置离线并记录原因）
+	mux.HandleFunc("/api/v1/nodes/fail", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		var req struct {
+			ID     string `json:"id"`
+			Reason string `json:"reason"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "bad json: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !reg.MarkFailed(req.ID, req.Reason) {
+			http.Error(w, "unknown node: "+req.ID, http.StatusNotFound)
+			return
+		}
+		writeJSON(w, map[string]any{"ok": true, "id": req.ID})
+	})
+
+	// POST /api/v1/nodes/recover 清除失败标记并恢复在线
+	mux.HandleFunc("/api/v1/nodes/recover", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		var req struct {
+			ID string `json:"id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "bad json: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !reg.ClearFailed(req.ID) {
+			http.Error(w, "unknown node: "+req.ID, http.StatusNotFound)
+			return
+		}
+		writeJSON(w, map[string]any{"ok": true, "id": req.ID})
+	})
+
 	// POST /api/v1/plan 生成推理计划
 	mux.HandleFunc("/api/v1/plan", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
