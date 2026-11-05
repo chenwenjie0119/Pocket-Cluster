@@ -152,7 +152,7 @@ llama-cli -m models/qwen2.5-1.5b-instruct-q4_k_m.gguf \
 
 ### 4.2 Worker：基于 llama.cpp RPC 改造，而非自研
 
-- llama.cpp 自带 `llama-rpc-server`（构建参数 `-DLLAMA_RPC=ON`），提供跨设备张量并行。
+- llama.cpp 自带 RPC 服务端（新版构建参数 `-DGGML_RPC=ON`，产物 `ggml-rpc-server`；0.7 之前为 `-DLLAMA_RPC=ON` + `llama-rpc-server`），提供跨设备张量并行。
 - **需要自己写的东西**：不是通信协议，而是"节点管理 + 调度建议"（即 Master 控制面）与"保活/监控"（运维面）。
 - 改造点（本项目已有）：
   1. Docker 化封装（docker/worker/Dockerfile）；
@@ -162,29 +162,31 @@ llama-cli -m models/qwen2.5-1.5b-instruct-q4_k_m.gguf \
 
 ### 4.3 如何获取 llama-rpc-server 二进制
 
-llama.cpp 官方预编译 release 默认**不包含** `rpc-server`：RPC 为可选构建项，需显式开启 `-DLLAMA_RPC=ON` 编译。以下给出三种获取方式与模型 GGUF 下载方法。
+llama.cpp 官方预编译 release 默认**不包含** `rpc-server`：RPC 为可选构建项，需显式开启 `-DGGML_RPC=ON` 编译。以下给出三种获取方式与模型 GGUF 下载方法。
 
 **源码编译（通用命令）**
 ```bash
-cmake -B build -DLLAMA_RPC=ON
-cmake --build build --target llama-rpc-server
+cmake -B build -DGGML_RPC=ON
+cmake --build build --target ggml-rpc-server
 ```
+
+产物名为 `ggml-rpc-server`；本项目容器内统一重命名为 `llama-rpc-server` 以兼容既有脚本与文档。
 
 **① Windows 原生**
 - 安装 CMake 与支持 C++17 的工具链（Visual Studio Build Tools 或 MinGW）；
-- 在 llama.cpp 源码根目录执行上面的通用命令，产物为 `build/bin/llama-rpc-server.exe`。
+- 在 llama.cpp 源码根目录执行上面的通用命令，产物为 `build/bin/ggml-rpc-server.exe`。
 
 **② WSL2 / Docker 容器内 Linux**
 - 容器内准备工具链：`apt install build-essential cmake git`；
-- 克隆 llama.cpp 后执行通用命令，产物为 `build/bin/llama-rpc-server`；
-- 本项目 `docker/worker/Dockerfile` 已内置该构建流程，直接 `docker compose up -d --build` 即可。
+- 克隆 llama.cpp 后执行通用命令，产物为 `build/bin/ggml-rpc-server`（共享库 `libggml*.so` 需一并带上）；
+- 本项目 `docker/worker/Dockerfile` 直接复用本地 `docker/llama.cpp` 源码构建，先把源码 clone 到该目录，再 `docker compose up -d --build`。
 
 **③ Android NDK 交叉编译（x86_64）**
 - 需要 Android NDK，配置交叉工具链后执行：
 ```bash
 cmake -B build-android -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
-  -DANDROID_ABI=x86_64 -DANDROID_PLATFORM=android-24 -DLLAMA_RPC=ON
-cmake --build build-android --target llama-rpc-server
+  -DANDROID_ABI=x86_64 -DANDROID_PLATFORM=android-24 -DGGML_RPC=ON
+cmake --build build-android --target ggml-rpc-server
 ```
 - MuMu 12 为 x86_64 镜像，必须使用 x86_64 产物（勿用 arm64），push 到 `/data/local/tmp/` 后 `chmod +x` 即可运行。
 

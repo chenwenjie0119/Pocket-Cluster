@@ -54,7 +54,8 @@
 
 1. Install WSL2 + Docker Desktop (see docs/MVP_GUIDE.md).
 2. Copy `wsl/.wslconfig` to `%USERPROFILE%\.wslconfig`, then restart WSL with `wsl --shutdown`.
-3. `cd docker && docker compose up -d --build` to start 2 Linux Workers.
+3. Fetch the llama.cpp source into the build context (it is not committed): `git clone --depth 1 https://github.com/ggml-org/llama.cpp.git docker/llama.cpp`.
+   - Then `cd docker && docker compose up -d --build` to start 2 Linux Workers.
    - Note: the `master` service in `docker-compose.yml` belongs to `profiles: ["optional"]` and is not started by default; Master is recommended to run natively on Windows (a containerized version is provided via `docker/master/Dockerfile`).
 4. Follow `android/setup_mumu.ps1` to configure the MuMu emulator and deploy the Android Worker.
 5. `go build -o pocketd.exe ./cmd/pocketd && ./pocketd.exe` to start the Master.

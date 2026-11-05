@@ -54,7 +54,8 @@
 
 1. 安装 WSL2 + Docker Desktop（详见 docs/MVP_GUIDE.md）。
 2. 把 `wsl/.wslconfig` 复制到 `%USERPROFILE%\.wslconfig`，然后 `wsl --shutdown` 重启 WSL。
-3. `cd docker && docker compose up -d --build` 启动 2 个 Linux Worker。
+3. 先把 llama.cpp 源码拉到构建上下文里（该项目源码不入库）：`git clone --depth 1 https://github.com/ggml-org/llama.cpp.git docker/llama.cpp`。
+   - 然后 `cd docker && docker compose up -d --build` 启动 2 个 Linux Worker。
    - 注：`docker-compose.yml` 中 master 服务属于 `profiles: ["optional"]`，默认不启动；Master 推荐 Windows 原生运行，容器化版本仅供参考（`docker/master/Dockerfile` 已提供）。
 4. 按 `android/setup_mumu.ps1` 配置 MuMu 模拟器并部署 Android Worker。
 5. `go build -o pocketd.exe ./cmd/pocketd && ./pocketd.exe` 启动 Master。
