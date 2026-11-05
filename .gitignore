@@ -40,3 +40,6 @@ logs/
 # Local runtime state
 .pocket-cluster/
 runtime/
+
+# Vendored llama.cpp source (clone locally before building the worker image)
+docker/llama.cpp/
